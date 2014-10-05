@@ -1,0 +1,109 @@
+# template for "Stopwatch: The Game"
+
+import simplegui
+import random
+import math
+
+# define global variables
+
+position = [50, 100]
+position2 = [5, 15]
+position3 = [120, 15]
+
+interval = 100
+time_ts = 0
+message = str(time_ts)
+min = str(0)
+sec = str(0)
+ms = str(0)
+message2 = min + ':' + sec + '.' + ms
+successes = 0
+attempts = 0
+successes_str = str("Success: ") + str(0)
+attempts_str = str("Attempts: ") +str(0)
+
+# define helper function format that converts time
+# in tenths of seconds into formatted string A:BC.D
+def format(time_ts):
+    global sec
+    sec = str(time_ts // 10 % 60)
+    if (time_ts // 10 % 60) < 10:
+        sec = str(0) + sec
+    elif time_ts >  599:
+       sec = str((time_ts // 10) % 60)
+    global ms
+    ms = str(time_ts % 10)
+    global min
+    min = str(time_ts // 600)
+    if time_ts // 600 == 10:
+        Stop()
+    
+# define event handlers for buttons; "Start", "Stop", "Reset"
+
+def Start():
+    timer.start()
+    
+def Stop():
+    if timer.is_running() == True:
+        global attempts
+        global attempts_str
+        attempts += 1
+        attempts_str =  str("Attempts: ") + str(attempts)
+        global successes
+        if time_ts % 10 == 0:
+            successes += 1
+            global successes_str
+            successes_str = str("Success: ") + str(successes)
+    timer.stop()
+
+def Reset():
+    global time_ts
+    time_ts = 0
+    global attempts
+    global attempts_str
+    attempts = 0
+    attempts_str =  str("Attempts: ") + str(attempts)
+    global successes
+    successes = 0 
+    global successes_str
+    successes_str = str("Success: ") + str(successes)
+
+# define event handler for timer with 0.1 sec interval
+
+def update():
+    format(time_ts)
+    global message2
+    message2 = min + ':' + sec + '.' + ms
+    
+def tick():
+    global time_ts
+    time_ts += 1
+    print time_ts
+
+
+# define draw handler
+def draw(canvas):
+    update()
+    canvas.draw_text(message2, position, 32, "Red")
+    canvas.draw_text(successes_str, position2, 16, "White")
+    canvas.draw_text(attempts_str, position3, 16, "White")
+    
+# create frame
+
+f = simplegui.create_frame("Guess the number", 200, 200)
+
+# register event handlers
+
+f.set_draw_handler(draw)
+f.add_button("Start", Start, 200)
+f.add_button("Stop", Stop, 200)
+f.add_button("Reset", Reset, 200)
+#f.add_input("Input Range", rangeNew, 200)
+#f.add_input("Enter a guess", input_guess, 200)
+
+# Register event handlers
+f.set_draw_handler(draw)
+timer = simplegui.create_timer(interval, tick)
+
+# Start the frame animation
+f.start()
